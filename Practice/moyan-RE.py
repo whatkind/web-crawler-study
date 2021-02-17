@@ -1,9 +1,9 @@
-# bs4爬取猫眼电影
+# RE爬取猫眼电影
 from fake_useragent import UserAgent
 import requests
 from random import randint
 from time import sleep
-from bs4 import BeautifulSoup
+import re
 
 
 def get_html(url):
@@ -20,19 +20,14 @@ def get_html(url):
 
 
 def parse_index(html):
-    soup = BeautifulSoup(html, "lxml")
-    all_a = soup.select(".movie-item.film-channel > a")
-    all_urls = []
-    for a in all_a:
-        all_urls.append(a.attrs['href'])
+    all_urls = re.findall(r'<div class="movie-item film-channel">\s+<a href="(.+)" target="_blank" data-act="movie-click" data-val="{movieid:\d+}">', html)
     return ['https://maoyan.com{}'.format(url) for url in all_urls]
 
 
 def parse_info(html):
-    soup = BeautifulSoup(html, "lxml")
-    name = to_arr(soup.select("h1.name"))
-    types = to_arr(soup.select("li.ellipsis > a"))
-    actors = to_arr(soup.select("li.celebrity.actor > div > a"))
+    name = re.findall(r'<h1 class="name">(.+)</h1>', html)
+    types = re.findall(r'<a class="text-link".+> (.+) </a>', html)
+    actors = re.findall(r'<li class="celebrity actor".+>\s+<a.+>\s+<img.+ alt=" (.+)" />', html)
     actors = format_actors(actors)
     return {
         "name": name,

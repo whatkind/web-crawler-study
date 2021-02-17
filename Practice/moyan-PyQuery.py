@@ -1,9 +1,9 @@
-# bs4爬取猫眼电影
+# PyQuery爬取猫眼电影
 from fake_useragent import UserAgent
 import requests
 from random import randint
 from time import sleep
-from bs4 import BeautifulSoup
+from pyquery import PyQuery as pq
 
 
 def get_html(url):
@@ -20,19 +20,19 @@ def get_html(url):
 
 
 def parse_index(html):
-    soup = BeautifulSoup(html, "lxml")
-    all_a = soup.select(".movie-item.film-channel > a")
+    doc = pq(html)
+    all_a = doc("div.movie-item.film-channel").children('a')
     all_urls = []
     for a in all_a:
-        all_urls.append(a.attrs['href'])
+        all_urls.append(a.get('href'))
     return ['https://maoyan.com{}'.format(url) for url in all_urls]
 
 
 def parse_info(html):
-    soup = BeautifulSoup(html, "lxml")
-    name = to_arr(soup.select("h1.name"))
-    types = to_arr(soup.select("li.ellipsis > a"))
-    actors = to_arr(soup.select("li.celebrity.actor > div > a"))
+    doc = pq(html)
+    name = to_arr(doc("h1.name"))
+    types = to_arr(doc("li.ellipsis a"))
+    actors = to_arr(doc("li.celebrity.actor div a"))
     actors = format_actors(actors)
     return {
         "name": name,
