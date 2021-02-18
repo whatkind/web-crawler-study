@@ -25,7 +25,7 @@ try:
         else:
             break
 except Exception as e:
-    print(e)
+    print('程序报错', e)
 finally:
     sleep(3)
     driver.quit()
